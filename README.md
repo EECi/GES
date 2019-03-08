@@ -42,13 +42,9 @@ The files included here are as follows:
 The model has been run with MATLAB R2018a https://uk.mathworks.com/products/matlab.html
  
 ## Sample data
-The example given is a single zone unheated greenhouse, dimensions 10 x 25 x 5m with no artificial lighting ior supplemental CO<sub>2</sub>, as illustrated below.
-  
-![picture alt](./images/Greenhouse.png "Example Greenhouse Layout")
+The example given is a single zone unheated greenhouse, dimensions 10 x 25 x 5m with no artificial lighting ior supplemental CO<sub>2</sub>, as illustrated below.![alt Greenhouse](https://github.com/EECi/GES/blob/master/images/Greenhouse.PNG)
 
-The heat, mass and CO<sub>2</sub> exchanges are modelled as indicated below.
-
-![picture alt](./images/balance.png "Heat, Mass and CO<sub>2</sub> exchange")
+The heat, mass and CO<sub>2</sub> exchanges are modelled as indicated below.![alt Balance](https://github.com/EECi/GES/blob/master/images/Balance.PNG)
 
 
  ## Project status
