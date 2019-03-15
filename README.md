@@ -55,3 +55,10 @@ The heat, mass and CO<sub>2</sub> exchanges are modelled as indicated.
  
  This code is under development and has been modified for use in multi-zone, rooftop and underground greenhouses.  More information can be found under the University of Cambridge Engineering Department Energy Efficient Cities initative website here: https://www.eeci.cam.ac.uk/research/greenhouse-energy-simulation
  
+## Citation
+If using this code for development or research please cite as:
+
+[![DOI](https://zenodo.org/badge/171309394.svg)](https://zenodo.org/badge/latestdoi/171309394)
+
+
+
