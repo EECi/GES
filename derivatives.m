@@ -103,7 +103,7 @@ QP_i_f = max(QP_i_f,0); % assumed no evaporation from the floor, only condensati
 Gr = g*d_m^3./(T_i*nu^2).*abs(T_m - T_i);
 Re = int_air_speed*d_m/nu;
 [Nu, Sh] = lamorturb(Gr, Re, Le);
-A_m_wool = 075*A_m; % Area of mat exposed
+A_m_wool = 0.75*A_m; % Area of mat exposed
 A_m_water = 0.25*A_m; % assumed 25% saturated
 QV_m_i = A_m_wool.*Nu*lambda.*(T_m - T_i)/d_m;
 QP_m_i = A_m_water*H_fg./(rho_i*c_i).*Sh/Le*lambda/d_m.*(sat_conc(T_m) - C_w);
@@ -135,9 +135,14 @@ HV = Nu*lambda/d_v; % Used in the transpiration term
 % second subscript is the element that is absorbing. 
 
 % View factors
-F_c_v = min(LAI*p_v,p_v); % Cover to vegetation
-F_c_m = max((1-LAI)*p_v,0.0); % Cover to mat
-F_c_f = 1-p_v; % Cover to floor
+A_vvf=min(LAI*p_v*A_f,p_v*A_f);
+A_c_roof = 271;
+
+F_f_c = 1-p_v;  % Floor to cover
+F_f_p = p_v; % Floor to tray
+F_c_f = A_f/A_c_roof*F_f_c; % Cover to floor
+F_c_v = min((1-F_c_f)*LAI,(1-F_c_f)); % Cover to vegetation
+F_c_m = max((1-F_c_f)*(1-LAI),0); % Cover to mat
 F_v_c = 0.5; % Vegetation to cover
 F_v_m = 0.5; % Vegetation to mat
 F_v_p = 0; % Vegetation to tray
@@ -147,8 +152,6 @@ F_m_p = 0; % Mat to tray
 F_p_v = 0; % Tray to vegetation
 F_p_m = 0; % Tray to mat
 F_p_f = 1.0; % Tray to floor
-F_f_c = 1-p_v; % Floor to cover
-F_f_p = p_v; % Floor to tray
 
 % Cover to sky
 k = eps_ce;
@@ -156,39 +159,39 @@ QR_c_sk = k*sigm*A_c.*(T_c.^4 - T_sk^4); % J/s
 
 % Cover to vegetation
 k = eps_ci*eps_v./(1 - rho_ci*rho_v*F_c_v.*F_v_c);
-QR_c_v = k*sigm.*A_c.*F_c_v.*(T_c.^4 - T_v.^4);
+QR_c_v = k*sigm.*A_c_roof.*F_c_v.*(T_c.^4 - T_v.^4);
 
 % Cover to mat
 k = eps_ci*eps_m./(1 - rho_ci*rho_m*F_c_m.*F_m_c);
-QR_c_m = k*sigm.*A_c.*F_c_m.*(T_c.^4 - T_m.^4);
+QR_c_m = k*sigm.*A_c_roof.*F_c_m.*(T_c.^4 - T_m.^4);
 
 % Cover to floor
 k = eps_ci*eps_s./(1 - rho_ci*rho_s*F_c_f.*F_f_c);
-QR_c_f = k*sigm.*A_c.*F_c_f.*(T_c.^4 - T_f.^4);
+QR_c_f = k*sigm.*A_c_roof.*F_c_f.*(T_c.^4 - T_f.^4);
 
 % Vegetation to cover
 k = eps_v*eps_ci./(1 - rho_v*rho_ci*F_v_c.*F_c_v);
-QR_v_c = k*sigm.*A_v_exp.*F_v_c.*(T_v.^4 - T_c.^4);
+QR_v_c = k*sigm.*A_vvf*2.*F_v_c.*(T_v.^4 - T_c.^4);
 
 % Vegetation to mat
 k = eps_v*eps_m./(1 - rho_v*rho_m*F_v_m.*F_m_v);
-QR_v_m = k*sigm.*A_v_exp.*F_v_m.*(T_v.^4 - T_m.^4);
+QR_v_m = k*sigm.*A_vvf*2.*F_v_m.*(T_v.^4 - T_m.^4);
 
 % Vegetation to tray
 k = eps_v*eps_p./(1 - rho_v*rho_p*F_v_p.*F_p_v);
-QR_v_p = k*sigm.*A_v_exp.*F_v_p.*(T_v.^4 - T_p.^4);
+QR_v_p = k*sigm.*A_vvf*2.*F_v_p.*(T_v.^4 - T_p.^4);
 
 % Mat to cover
 k = eps_m*eps_ci./(1 - rho_m*rho_ci*F_m_c.*F_c_m);
-QR_m_c = k*sigm.*A_m_wool.*F_m_c.*(T_m.^4 - T_c.^4);
+QR_m_c = k*sigm.*A_m.*F_m_c.*(T_m.^4 - T_c.^4);
 
 % Mat to vegetation
 k = eps_m*eps_v./(1 - rho_m*rho_v*F_m_v.*F_v_m);
-QR_m_v = k*sigm.*A_m_wool.*F_m_v.*(T_m.^4 - T_v.^4);
+QR_m_v = k*sigm.*A_m.*F_m_v.*(T_m.^4 - T_v.^4);
 
 % Mat to tray
 k = eps_m*eps_p./(1 - rho_m*rho_p*F_m_p.*F_p_m);
-QR_m_p = k*sigm.*A_m_wool.*F_m_p.*(T_m.^4 - T_p.^4);
+QR_m_p = k*sigm.*A_m.*F_m_p.*(T_m.^4 - T_p.^4);
 
 % Tray to vegetation
 k = eps_p*eps_v./(1 - rho_p*rho_v*F_p_v.*F_v_p);
@@ -438,18 +441,18 @@ MC_leaf_prune = max(C_leaf - C_max_leaf, 0);
 %% CALCULATING DERIVATIVES
 
 % Temperature components
-dT_c_dt = 1./(A_c*cd_c).*(QV_i_c + QP_i_c + QR_f_c - QR_c_f + QR_v_c - QR_c_v ...
-    - QR_c_m + QR_m_c - QV_c_e - QR_c_sk + QS_c); 
+dT_c_dt = 1./(A_c*cd_c).*(QV_i_c + QP_i_c - QR_c_f - QR_c_v ...
+    - QR_c_m - QV_c_e - QR_c_sk + QS_c); 
 dT_i_dt = 1./(V.*rho_i*c_i).*(QV_m_i + QV_v_i - QV_i_f - QV_i_c - QV_i_e ...
     + QV_p_i + QS_i); 
-dT_v_dt = 1./(c_v*A_v.*msd_v).*(-QV_v_i - QR_v_c + QR_c_v + QR_m_v - QR_v_m ...
-    - QR_v_p + QR_p_v - QT_v_i + QS_v_NIR); 
-dT_m_dt = 1./(A_m*c_m).*(-QV_m_i - QP_m_i - QR_m_v + QR_v_m - QR_m_c + QR_c_m ...
-    - QR_m_p + QR_p_m - QD_m_p + QS_m_NIR);
-dT_p_dt = 1./(A_p*c_p).*(QD_m_p - QV_p_i - QP_p_i - QR_p_f + QR_f_p + QR_v_p...
-    - QR_p_v + QR_m_p - QR_p_m);
-dT_f_dt = 1./(rhod_s(1)*A_f*c_s(1)*l_s(1)).*(QR_p_f + QV_i_f + QP_i_f - ...
-    QR_f_c + QR_c_f - QR_f_p - QD_sf1 + QS_s_NIR);
+dT_v_dt = 1./(c_v*A_v.*msd_v).*(-QV_v_i - QR_v_c - QR_v_m ...
+    - QR_v_p - QT_v_i + QS_v_NIR); 
+dT_m_dt = 1./(A_m*c_m).*(-QV_m_i - QP_m_i - QR_m_v - QR_m_c ...
+    - QR_m_p - QD_m_p + QS_m_NIR);
+dT_p_dt = 1./(A_p*c_p).*(QD_m_p - QV_p_i - QP_p_i - QR_p_f ...
+    - QR_p_v - QR_p_m);
+dT_f_dt = 1./(rhod_s(1)*A_f*c_s(1)*l_s(1)).*(QV_i_f + QP_i_f - ...
+    QR_f_c - QR_f_p - QD_sf1 + QS_s_NIR);
 dT_s1_dt = 1./(rhod_s(2)*c_s(2)*l_s(2)*A_f).*(QD_sf1 - QD_s12);
 dT_s2_dt = 1./(rhod_s(3)*c_s(3)*l_s(3)*A_f).*(QD_s12 - QD_s23);
 dT_s3_dt = 1./(rhod_s(4)*c_s(4)*l_s(4)*A_f).*(QD_s23 - QD_s34);
